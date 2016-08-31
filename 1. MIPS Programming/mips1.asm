@@ -2,96 +2,96 @@
 .globl main
 
 main:
-	# read char
-	li $v0, 12
-	syscall
-	move $s0, $v0
-	beq $s0, 63, exit  # char is '?', so exit
-	
-	jal printnewline
-	
-	# test whether in A-Z
-	li $t6, 65  # lower limit 'A'
-	li $t7, 90  # higher limit 'Z'
-	sge $t6, $s0, $t6  # $t6 = whether $s0 >= 'A'
-	sle $t7, $s0, $t7  # $t7 = whether $s0 <= 'Z'
-	add $t7, $t6, $t7
-	beq $t7, 2, printA2Z  # $t7 equals to 2 means the char is in A-Z
-	
-	# test whether in a-z
-	li $t6, 97  # lower limit 'a'
-	li $t7, 122  # higher limit 'z'
-	sge $t6, $s0, $t6  # $t6 = whether $s0 >= 'a'
-	sle $t7, $s0, $t7  # $t7 = whether $s0 <= 'z'
-	add $t7, $t6, $t7
-	beq $t7, 2, printa2z  # $t7 equals to 2 means the char is in a-z
-	
-	# test whether in 0-9
-	li $t6, 48  # lower limit '0'
-	li $t7, 57  # higher limit '9'
-	sge $t6, $s0, $t6  # $t6 = whether $s0 >= '0'
-	sle $t7, $s0, $t7  # $t7 = whether $s0 <= '9'
-	add $t7, $t6, $t7
-	beq $t7, 2, print0to9  # $t7 equals to 2 means the char is in 0-9
+    # read char
+    li $v0, 12
+    syscall
+    move $s0, $v0
+    beq $s0, 63, exit  # char is '?', so exit
 
-	j printunknown
+    jal printnewline
+
+    # test whether in A-Z
+    li $t6, 65  # lower limit 'A'
+    li $t7, 90  # higher limit 'Z'
+    sge $t6, $s0, $t6  # $t6 = whether $s0 >= 'A'
+    sle $t7, $s0, $t7  # $t7 = whether $s0 <= 'Z'
+    add $t7, $t6, $t7
+    beq $t7, 2, printA2Z  # $t7 equals to 2 means the char is in A-Z
+
+    # test whether in a-z
+    li $t6, 97  # lower limit 'a'
+    li $t7, 122  # higher limit 'z'
+    sge $t6, $s0, $t6  # $t6 = whether $s0 >= 'a'
+    sle $t7, $s0, $t7  # $t7 = whether $s0 <= 'z'
+    add $t7, $t6, $t7
+    beq $t7, 2, printa2z  # $t7 equals to 2 means the char is in a-z
+
+    # test whether in 0-9
+    li $t6, 48  # lower limit '0'
+    li $t7, 57  # higher limit '9'
+    sge $t6, $s0, $t6  # $t6 = whether $s0 >= '0'
+    sle $t7, $s0, $t7  # $t7 = whether $s0 <= '9'
+    add $t7, $t6, $t7
+    beq $t7, 2, print0to9  # $t7 equals to 2 means the char is in 0-9
+
+    j printunknown
 
 printunknown:
-	la $a0, strunknown
-	li $v0, 4
-	syscall
-	jal printnewline
-	j main
+    la $a0, strunknown
+    li $v0, 4
+    syscall
+    jal printnewline
+    j main
 
 printA2Z:
-	subi $t6, $s0, 65  # calculate offset
-	move $a0, $t6  # pass offset to printletter
-	j printletter
+    subi $t6, $s0, 65  # calculate offset
+    move $a0, $t6  # pass offset to printletter
+    j printletter
 
 printa2z:
-	subi $t6, $s0, 97  # calculate offset
-	move $a0, $t6  # pass offset to printletter
-	j printletter
+    subi $t6, $s0, 97  # calculate offset
+    move $a0, $t6  # pass offset to printletter
+    j printletter
 
 printletter:
-	move $t6, $a0  # get letter offset
-	
-	# print letter itself
-	li $v0, 11
-	move $a0, $s0
-	syscall
-	
-	sll $t6, $t6, 2  # shift offset left 2 bits, aka multiply 4
-	la $t7, arraya2z
-	add $t6, $t6, $t7
-	lw $a0, ($t6)
-	li $v0, 4
-	syscall
-	
-	jal printnewline
-	j main
+    move $t6, $a0  # get letter offset
+
+    # print letter itself
+    li $v0, 11
+    move $a0, $s0
+    syscall
+
+    sll $t6, $t6, 2  # shift offset left 2 bits, aka multiply 4
+    la $t7, arraya2z
+    add $t6, $t6, $t7
+    lw $a0, ($t6)
+    li $v0, 4
+    syscall
+
+    jal printnewline
+    j main
 
 print0to9:
-	subi $t6, $s0, 48  # calculate offset
-	sll $t6, $t6, 2  # shift offset left 2 bits, aka multiply 4
-	la $t7, array0to9
-	add $t6, $t6, $t7
-	lw $a0, ($t6)
-	li $v0, 4
-	syscall
-	
-	jal printnewline
-	j main
+    subi $t6, $s0, 48  # calculate offset
+    sll $t6, $t6, 2  # shift offset left 2 bits, aka multiply 4
+    la $t7, array0to9
+    add $t6, $t6, $t7
+    lw $a0, ($t6)
+    li $v0, 4
+    syscall
+
+    jal printnewline
+    j main
 
 printnewline:
-	li $v0, 11
-	li $a0, 10  # char '\n'
-	syscall
-	jr $ra
+    li $v0, 11
+    li $a0, 10  # char '\n'
+    syscall
+    jr $ra
 
 exit:
-	li $v0, 10
-	syscall
+    li $v0, 10
+    syscall
 
 .data
 
